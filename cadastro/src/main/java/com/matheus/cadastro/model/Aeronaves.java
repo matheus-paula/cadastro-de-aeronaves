@@ -21,7 +21,7 @@ public class Aeronaves implements Serializable{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	@Column(nullable = false, unique = false)
-	private String nome;
+	private String modelo;
 	@Column(nullable = false, unique = false)
 	private String marca;
 	@Column(nullable = false, unique = false)
@@ -40,11 +40,11 @@ public class Aeronaves implements Serializable{
 	public void setId(long id) {
 		this.id = id;
 	}
-	public String getNome() {
-		return nome;
+	public String getModelo() {
+		return modelo;
 	}
-	public void setNome(String nome) {
-		this.nome = nome;
+	public void setModelo(String modelo) {
+		this.modelo = modelo;
 	}
 	public String getMarca() {
 		return marca;

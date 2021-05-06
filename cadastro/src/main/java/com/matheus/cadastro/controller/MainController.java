@@ -2,9 +2,11 @@ package com.matheus.cadastro.controller;
 
 
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -24,21 +26,20 @@ import com.matheus.cadastro.model.CommitStatus;
 import com.matheus.cadastro.model.Toastr;
 import com.matheus.cadastro.model.ToastrType;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
 public class MainController implements WebMvcConfigurer{
 	 	@Autowired (required=true)
 	 	private AeronavesDao aeronaveDao;
 		
-	 	@CrossOrigin(origins = "*", maxAge = 3600)
-		@RequestMapping("/*")
+	 	@RequestMapping("/*")
 		  @ResponseBody
 		  public String main () {
 		      return "ok";
 		  }
 		
 	
-	 	@CrossOrigin(origins = "*", maxAge = 3600)
-		@RequestMapping(value = {"/aeronaves/term/{term}"}, method = RequestMethod.GET)
+	 	@RequestMapping(value = {"/aeronaves/term/{term}"}, method = RequestMethod.GET)
 		@ResponseBody
 		public String getAeronaveById (@PathVariable(value="term") String term) {
 			String jsonInString;
@@ -55,20 +56,21 @@ public class MainController implements WebMvcConfigurer{
 			return jsonInString;
 		}
 	
-	 	@CrossOrigin(origins = "*", maxAge = 3600)
-		@RequestMapping(value = {"/aeronaves"}, method = RequestMethod.POST)
-		@ResponseBody
-		public String addAeronave (HttpServletRequest request) {
-			
+	    @RequestMapping(value = {"/aeronaves"}, method = RequestMethod.POST)
+	    @ResponseBody
+		public String addAeronave (HttpServletRequest request, HttpServletResponse response) {
+	    	
+	    	//TODO fix post issue
+	        
 			Aeronaves aeronave = new Aeronaves();
 			Toastr toastrJson = new Toastr();
 			aeronave.setCreated(new Date());
 			aeronave.setUpdated(new Date());
-			aeronave.setNome(request.getParameter("aeronave.nome"));
-			aeronave.setDescricao(request.getParameter("aeronave.descricao"));
-			aeronave.setAno(Integer.parseInt(request.getParameter("aeronave.ano")));
-			aeronave.setVendido(request.getParameter("aeronave.vendido") == "true"? true: false);
-			aeronave.setMarca(request.getParameter("aeronave.marca"));
+			aeronave.setModelo(request.getParameter("modelo"));
+			aeronave.setDescricao(request.getParameter("descricao"));
+			aeronave.setAno(Integer.parseInt(request.getParameter("ano")));
+			aeronave.setVendido(request.getParameter("vendido") == "true"? true: false);
+			aeronave.setMarca(request.getParameter("marca"));
 			
 			CommitStatus commit = null;
 			commit = aeronaveDao.save(aeronave);
@@ -93,8 +95,7 @@ public class MainController implements WebMvcConfigurer{
 		
 		
 		
-	 	@CrossOrigin(origins = "*", maxAge = 3600)
-		@RequestMapping(value = {"/aeronaves/{id}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	 	@RequestMapping(value = {"/aeronaves/{id}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 		@ResponseBody
 		public String removeAeronave (@PathVariable(value="id") String id) {
 		
@@ -127,8 +128,7 @@ public class MainController implements WebMvcConfigurer{
 		
 		
 		
-	 	@CrossOrigin(origins = "*", maxAge = 3600)
-		@RequestMapping(value = {"/aeronaves/{id}"}, method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	 	@RequestMapping(value = {"/aeronaves/{id}"}, method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 		@ResponseBody
 		public String updateAeronave (@PathVariable(value="id") String id, HttpServletRequest request) {
 			Toastr toastrJson = new Toastr();
@@ -136,20 +136,20 @@ public class MainController implements WebMvcConfigurer{
 				Aeronaves aeronave = aeronaveDao.aeronavePorId(id);
 				if(aeronave != null) {
 					aeronave.setUpdated(new Date());
-					if(request.getParameter("aeronave.nome") != null) {
-						aeronave.setNome(request.getParameter("aeronave.nome"));
+					if(request.getParameter("modelo") != null) {
+						aeronave.setModelo(request.getParameter("modelo"));
 					}
-					if(request.getParameter("aeronave.descricao") != null) {
-						aeronave.setDescricao(request.getParameter("aeronave.descricao"));
+					if(request.getParameter("descricao") != null) {
+						aeronave.setDescricao(request.getParameter("descricao"));
 					}
-					if(request.getParameter("aeronave.ano") != null) {
-						aeronave.setAno(Integer.parseInt(request.getParameter("aeronave.ano")));
+					if(request.getParameter("ano") != null) {
+						aeronave.setAno(Integer.parseInt(request.getParameter("ano")));
 					}
-					if(request.getParameter("aeronave.vendido") != null) {
-						aeronave.setVendido(request.getParameter("aeronave.vendido") == "true"? true: false);
+					if(request.getParameter("vendido") != null) {
+						aeronave.setVendido(request.getParameter("vendido") == "true"? true: false);
 					}
-					if(request.getParameter("aeronave.marca") != null) {
-						aeronave.setMarca(request.getParameter("aeronave.marca"));
+					if(request.getParameter("marca") != null) {
+						aeronave.setMarca(request.getParameter("marca"));
 					}
 					
 					CommitStatus commit = null;
