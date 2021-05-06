@@ -16,6 +16,7 @@ import java.io.Serializable;
 public class Aeronaves implements Serializable{
 	
 	private static final long serialVersionUID = -6430433731001896544L;
+	
 	@Id()
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
