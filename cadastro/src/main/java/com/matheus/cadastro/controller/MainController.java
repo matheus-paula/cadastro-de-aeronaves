@@ -2,6 +2,8 @@ package com.matheus.cadastro.controller;
 
 
 import java.util.Date;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,8 @@ public class MainController implements WebMvcConfigurer{
 	 	@Autowired (required=true)
 	 	private AeronavesDao aeronaveDao;
 		
-	 	@RequestMapping("/*")
+	 	@CrossOrigin(origins = "*", maxAge = 3600)
+		@RequestMapping("/*")
 		  @ResponseBody
 		  public String main () {
 		      return "ok";
@@ -35,11 +38,11 @@ public class MainController implements WebMvcConfigurer{
 		
 	
 	 	@CrossOrigin(origins = "*", maxAge = 3600)
-		@RequestMapping(value = {"/aeronaves/{id}"}, method = RequestMethod.GET)
+		@RequestMapping(value = {"/aeronaves/term/{term}"}, method = RequestMethod.GET)
 		@ResponseBody
-		public String getAeronaveById (@PathVariable(value="id") String id) {
+		public String getAeronaveById (@PathVariable(value="term") String term) {
 			String jsonInString;
-			Aeronaves aeronave = aeronaveDao.aeronavePorId(id);
+			List<Aeronaves> aeronave = aeronaveDao.aeronavesPorTermo(term);
 			if(aeronave != null) {
 				Gson gson = new GsonBuilder()
 				        .serializeNulls()
@@ -47,11 +50,12 @@ public class MainController implements WebMvcConfigurer{
 				jsonInString = gson.toJson(aeronave);
 				
 			}else {
-				jsonInString = "sda";
+				jsonInString = "[]";
 			}
 			return jsonInString;
 		}
 	
+	 	@CrossOrigin(origins = "*", maxAge = 3600)
 		@RequestMapping(value = {"/aeronaves"}, method = RequestMethod.POST)
 		@ResponseBody
 		public String addAeronave (HttpServletRequest request) {
@@ -89,6 +93,7 @@ public class MainController implements WebMvcConfigurer{
 		
 		
 		
+	 	@CrossOrigin(origins = "*", maxAge = 3600)
 		@RequestMapping(value = {"/aeronaves/{id}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 		@ResponseBody
 		public String removeAeronave (@PathVariable(value="id") String id) {
@@ -122,6 +127,7 @@ public class MainController implements WebMvcConfigurer{
 		
 		
 		
+	 	@CrossOrigin(origins = "*", maxAge = 3600)
 		@RequestMapping(value = {"/aeronaves/{id}"}, method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 		@ResponseBody
 		public String updateAeronave (@PathVariable(value="id") String id, HttpServletRequest request) {

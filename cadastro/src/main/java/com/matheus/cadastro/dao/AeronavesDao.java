@@ -6,6 +6,7 @@ import com.matheus.cadastro.model.Aeronaves;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -23,12 +24,23 @@ public class AeronavesDao extends Dao {
 	}
 	
 	public Aeronaves aeronavePorId(String id) {
-		System.out.println("MEU ID"+id);
-		Query<?> query = session.createQuery("from Aeronaves where id ="+id);
+		Query<?> query = session.createQuery("from Aeronaves where id="+id);
 		Aeronaves aeronave = new Aeronaves();
 		aeronave = (Aeronaves) readOneObject(query);
 		return aeronave;
-		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Aeronaves> aeronavesPorTermo(String term) {
+		Query<?> query;
+		if(term.matches("[+-]?\\d*(\\.\\d+)?")) {
+			query = session.createQuery("from Aeronaves a where a.id="+term);
+		}else {
+			query = session.createQuery("from Aeronaves a where lower(a.nome) like lower('%"+term+"%')");
+		}
+		List<Aeronaves> aeronaves = new ArrayList<Aeronaves>();
+		aeronaves = (List<Aeronaves>) readManyObjects(query);
+		return aeronaves;
 	}
 	
 }
