@@ -10,7 +10,6 @@ class HibernateControl {
 
 	public HibernateControl() {
 		if (factory == null)
-			System.out.println("CONFIGURANDO FACTORY");
 			factory = new Configuration().configure().buildSessionFactory();
 	}
 

@@ -24,7 +24,6 @@ abstract class Dao implements Serializable {
 	protected void commitTransaction(Transaction transaction) {
 		if (transaction.getStatus() != TransactionStatus.COMMITTED)
 			transaction.commit();
-		
 	}
 
 	public Dao() {

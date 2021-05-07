@@ -18,7 +18,6 @@ public class CadastroApplication {
 		if (factory == null)
 			factory = new Configuration().configure().buildSessionFactory();
 		SpringApplication.run(CadastroApplication.class, args);
-		
 	}
 
 	public synchronized SessionFactory getFactory() {

@@ -12,8 +12,8 @@ import java.io.Serializable;
 
 
 @Entity
-@Table(name = "aeronaves")
-public class Aeronaves implements Serializable{
+@Table(name = "aeronave")
+public class Aeronave implements Serializable{
 	
 	private static final long serialVersionUID = -6430433731001896544L;
 	
@@ -82,7 +82,4 @@ public class Aeronaves implements Serializable{
 	public void setUpdated(Date updated) {
 		this.updated = updated;
 	}
-	
-
-	
 }

@@ -9,27 +9,18 @@
 		<property name="hibernate.connection.username">root</property>
 		<property name="hibernate.connection.password">devvale</property>
 		<property name="hibernate.show_sql">true</property>
-
-		<!-- <property name="hibernate.hbm2ddl.auto">update</property> -->
-		<!-- <property name="hibernate.hbm2ddl.auto">create</property>-->
-
 		<property name="hibernate.c3p0.maxPoolSize">100</property>
 		<property name="hibernate.c3p0.minPoolSize">1</property>
 		<property name="hibernate.c3p0.initialPoolSize">2</property>
-
 		<property name="hibernate.c3p0.maxStatements">1000</property>
 		<property name="hibernate.c3p0.maxStatementsPerConnection">20</property>
-
 		<property name="hibernate.c3p0.numHelperThreads">200</property>
 		<property name="hibernate.c3p0.maxConnectionAge">1440</property>
 		<property name="hibernate.c3p0.maxIdleTimeExcessConnections">30</property>
 		<property name="hibernate.c3p0.maxIdleTime">7200</property>
 		<property name="hibernate.c3p0.idleConnectionTestPeriod">60</property>
 		<property name="hibernate.c3p0.acquireIncrement">2</property>
-
 		<property name="hibernate.bytecode.use_reflection_optimizer">true</property>
-
-		<mapping class="com.matheus.cadastro.model.Aeronaves" />
-		
+		<mapping class="com.matheus.cadastro.model.Aeronave" />
 	</session-factory>
 </hibernate-configuration>

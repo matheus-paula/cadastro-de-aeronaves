@@ -21,7 +21,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.matheus.cadastro.dao.AeronavesDao;
-import com.matheus.cadastro.model.Aeronaves;
+import com.matheus.cadastro.model.Aeronave;
 import com.matheus.cadastro.model.CommitStatus;
 import com.matheus.cadastro.model.Toastr;
 import com.matheus.cadastro.model.ToastrType;
@@ -31,41 +31,58 @@ import com.matheus.cadastro.model.ToastrType;
 public class MainController implements WebMvcConfigurer{
 	 	@Autowired (required=true)
 	 	private AeronavesDao aeronaveDao;
+	 	private Gson gson = new GsonBuilder()
+		        .serializeNulls()
+		        .setPrettyPrinting().create(); 
 		
-	 	@RequestMapping("/*")
-		  @ResponseBody
-		  public String main () {
-		      return "ok";
-		  }
-		
-	
+	 	/* AERONAVE POR ID */
+	 	@RequestMapping(value = {"/aeronaves/{id}"}, method = RequestMethod.GET)
+		@ResponseBody
+		public String aeronaveById(@PathVariable(value="id") String id) {
+	 		Aeronave aeronave = aeronaveDao.aeronavePorId(id);
+	 		return (aeronave != null) ? gson.toJson(aeronave) : "{}";
+		}
+	 	
+	 	/* AERONAVES POR MARCA (Contagem) */
+	 	@RequestMapping("/aeronaves/marca")
+		@ResponseBody
+		public String byMarca() {
+			List<Object> marca = aeronaveDao.byMarca();
+			return (marca != null) ? gson.toJson(marca) : "{}";
+		}
+	 	
+	 	/* AERONAVE ADICIONADAS NA SEMANA */
+	 	@RequestMapping("/aeronaves/semana")
+		@ResponseBody
+		public String byUltimaSemana() {
+			List<Object> semana =  aeronaveDao.byUltimaSemana();
+			return (semana != null) ? gson.toJson(semana) : "{}";
+		}
+	 	
+	 	/* AERONAVE POR DECADA */
+	 	@RequestMapping("/aeronaves/decada")
+		@ResponseBody
+		public String byDecada() {
+	 		List<Object> decadas = aeronaveDao.byDecada(); 
+	 		return (decadas != null) ? gson.toJson(decadas) : "{}";
+		}
+	 	
+	 	/* AERONAVES POR ID OU MODELO */
 	 	@RequestMapping(value = {"/aeronaves/term/{term}"}, method = RequestMethod.GET)
 		@ResponseBody
-		public String getAeronaveById (@PathVariable(value="term") String term) {
-			String jsonInString;
-			List<Aeronaves> aeronave = aeronaveDao.aeronavesPorTermo(term);
-			if(aeronave != null) {
-				Gson gson = new GsonBuilder()
-				        .serializeNulls()
-				        .setPrettyPrinting().create(); 
-				jsonInString = gson.toJson(aeronave);
-				
-			}else {
-				jsonInString = "[]";
-			}
-			return jsonInString;
+		public String getAeronavesById (@PathVariable(value="term") String term) {
+			List<Aeronave> aeronaves = aeronaveDao.aeronavesPorTermo(term);
+			return (aeronaves != null) ? gson.toJson(aeronaves) : "{}";
 		}
 	
-	    @RequestMapping(value = {"/aeronaves"}, method = RequestMethod.POST)
+	 	/* ADICIONAR AERONAVE */
+	 	@RequestMapping(value = {"/aeronaves"}, method = RequestMethod.POST)
 	    @ResponseBody
 		public String addAeronave (HttpServletRequest request, HttpServletResponse response) {
 	    	Toastr toastrJson = new Toastr();
-			Aeronaves aeronave = new Aeronaves();
+			Aeronave aeronave = new Aeronave();
 			try {
-				Gson gson = new GsonBuilder()
-				        .serializeNulls()
-				        .setPrettyPrinting().create(); 
-				aeronave = gson.fromJson(request.getReader().readLine(), Aeronaves.class);
+				aeronave = gson.fromJson(request.getReader().readLine(), Aeronave.class);
 				aeronave.setCreated(new Date());
 				aeronave.setUpdated(new Date());
 				CommitStatus commit = null;
@@ -87,22 +104,17 @@ public class MainController implements WebMvcConfigurer{
 				toastrJson.setMessage(
 						"Aconteceu algo de errado durante a tentativa de cadastro do avião!");
 			}
-			
-			Gson gson = new GsonBuilder()
-			        .serializeNulls()
-			        .setPrettyPrinting().create(); 
-			
 			return gson.toJson(toastrJson);
-			
 		}
 		
-		
-		
-	 	@RequestMapping(value = {"/aeronaves/{id}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	 	/* REMOVER AERONAVE */
+	 	@RequestMapping(
+	 			value = {"/aeronaves/{id}"}, method = RequestMethod.DELETE, 
+	 			produces = MediaType.APPLICATION_JSON_VALUE)
 		@ResponseBody
 		public String removeAeronave (@PathVariable(value="id") String id) {		
 			Toastr toastrJson = new Toastr();
-			Aeronaves aeronave = aeronaveDao.aeronavePorId(id);
+			Aeronave aeronave = aeronaveDao.aeronavePorId(id);
 			if(aeronave != null) {
 				CommitStatus commit = null;
 				commit = aeronaveDao.delete(aeronave);
@@ -124,60 +136,53 @@ public class MainController implements WebMvcConfigurer{
 						"Este cadastro não existe no sistema!");
 	
 			}
-			Gson gson = new Gson();
 			return gson.toJson(toastrJson);
 		}
 		
-		
-		//TODO update
-	 	@RequestMapping(value = {"/aeronaves/{id}"}, method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	 	/* ATUALIZAR AERONAVE */
+		@RequestMapping(
+				value = {"/aeronaves/{id}"}, method = RequestMethod.PUT, 
+				produces = MediaType.APPLICATION_JSON_VALUE)
 		@ResponseBody
 		public String updateAeronave (@PathVariable(value="id") String id, HttpServletRequest request) {
 			Toastr toastrJson = new Toastr();
-			if(id != null) {
-				Aeronaves aeronave = aeronaveDao.aeronavePorId(id);
-				if(aeronave != null) {
-					aeronave.setUpdated(new Date());
-					if(request.getParameter("modelo") != null) {
-						aeronave.setModelo(request.getParameter("modelo"));
-					}
-					if(request.getParameter("descricao") != null) {
-						aeronave.setDescricao(request.getParameter("descricao"));
-					}
-					if(request.getParameter("ano") != null) {
-						aeronave.setAno(Integer.parseInt(request.getParameter("ano")));
-					}
-					if(request.getParameter("vendido") != null) {
-						aeronave.setVendido(request.getParameter("vendido") == "true"? true: false);
-					}
-					if(request.getParameter("marca") != null) {
-						aeronave.setMarca(request.getParameter("marca"));
-					}
-					
-					CommitStatus commit = null;
-					commit = aeronaveDao.update(aeronave);
-					if (commit.isCommited()) {
-						toastrJson.setType(ToastrType.success);
-						toastrJson.setTitle("Cadastro atualizado com sucesso!");
-						toastrJson.setMessage(
-								"O avião foi atualizado com sucesso!");
-					} else {
-						toastrJson.setType(ToastrType.failure);
-						toastrJson.setTitle("Cadastro não atualizado");
-						toastrJson.setMessage(
-								"Aconteceu algo de errado durante a tentativa de atualização do avião!");
-					}
-					
-				}else {
-					toastrJson.setType(ToastrType.success);
-					toastrJson.setTitle("Cadastro não existe!");
-					toastrJson.setMessage(
-							"Este cadastro não existe no sistema!");
-
+			Gson gson = new GsonBuilder()
+			        .serializeNulls()
+			        .setPrettyPrinting().create(); 
+			try {
+				Aeronave aeronave = aeronaveDao.aeronavePorId(id);
+				Aeronave updatedAeronave = gson.fromJson(request.getReader().readLine(), Aeronave.class);
+				aeronave.setUpdated(new Date());
+				aeronave.setAno(updatedAeronave.getAno());
+				if(!updatedAeronave.getDescricao().isEmpty()) {
+					aeronave.setDescricao(updatedAeronave.getDescricao());
 				}
-				
+				if(!updatedAeronave.getModelo().isEmpty()) {
+					aeronave.setModelo(updatedAeronave.getModelo());
+				}
+				if(!updatedAeronave.getMarca().isEmpty()) {
+					aeronave.setMarca(updatedAeronave.getMarca());
+				}
+				aeronave.setVendido(updatedAeronave.isVendido());
+				CommitStatus commit = null;
+				commit = aeronaveDao.save(aeronave);
+				if (commit.isCommited()) {
+					toastrJson.setType(ToastrType.success);
+					toastrJson.setTitle("Cadastro atualizado com sucesso!");
+					toastrJson.setMessage(
+							"O avião foi atualizado com sucesso!");
+				} else {
+					toastrJson.setType(ToastrType.failure);
+					toastrJson.setTitle("Cadastro não atualizado");
+					toastrJson.setMessage(
+							"Aconteceu algo de errado durante a tentativa de atualização do cadastro!");
+				}
+			} catch (IOException e) {
+				toastrJson.setType(ToastrType.failure);
+				toastrJson.setTitle("Cadastro não realizado");
+				toastrJson.setMessage(
+						"Aconteceu algo de errado durante a tentativa de atualização do cadastro!");
 			}
-			Gson gson = new Gson();
 			return gson.toJson(toastrJson);
 		}
 }
