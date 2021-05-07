@@ -1,8 +1,8 @@
 package com.matheus.cadastro.controller;
 
 
+import java.io.IOException;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -59,32 +59,35 @@ public class MainController implements WebMvcConfigurer{
 	    @RequestMapping(value = {"/aeronaves"}, method = RequestMethod.POST)
 	    @ResponseBody
 		public String addAeronave (HttpServletRequest request, HttpServletResponse response) {
-	    	
-	    	//TODO fix post issue
-	        
+	    	Toastr toastrJson = new Toastr();
 			Aeronaves aeronave = new Aeronaves();
-			Toastr toastrJson = new Toastr();
-			aeronave.setCreated(new Date());
-			aeronave.setUpdated(new Date());
-			aeronave.setModelo(request.getParameter("modelo"));
-			aeronave.setDescricao(request.getParameter("descricao"));
-			aeronave.setAno(Integer.parseInt(request.getParameter("ano")));
-			aeronave.setVendido(request.getParameter("vendido") == "true"? true: false);
-			aeronave.setMarca(request.getParameter("marca"));
-			
-			CommitStatus commit = null;
-			commit = aeronaveDao.save(aeronave);
-			if (commit.isCommited()) {
-				toastrJson.setType(ToastrType.success);
-				toastrJson.setTitle("Cadastro realizado com sucesso!");
-				toastrJson.setMessage(
-						"O avião foi cadastrado com sucesso!");
-			} else {
+			try {
+				Gson gson = new GsonBuilder()
+				        .serializeNulls()
+				        .setPrettyPrinting().create(); 
+				aeronave = gson.fromJson(request.getReader().readLine(), Aeronaves.class);
+				aeronave.setCreated(new Date());
+				aeronave.setUpdated(new Date());
+				CommitStatus commit = null;
+				commit = aeronaveDao.save(aeronave);
+				if (commit.isCommited()) {
+					toastrJson.setType(ToastrType.success);
+					toastrJson.setTitle("Cadastro realizado com sucesso!");
+					toastrJson.setMessage(
+							"O avião foi cadastrado com sucesso!");
+				} else {
+					toastrJson.setType(ToastrType.failure);
+					toastrJson.setTitle("Cadastro não realizado");
+					toastrJson.setMessage(
+							"Aconteceu algo de errado durante a tentativa de cadastro do avião!");
+				}
+			} catch (IOException e) {
 				toastrJson.setType(ToastrType.failure);
 				toastrJson.setTitle("Cadastro não realizado");
 				toastrJson.setMessage(
 						"Aconteceu algo de errado durante a tentativa de cadastro do avião!");
 			}
+			
 			Gson gson = new GsonBuilder()
 			        .serializeNulls()
 			        .setPrettyPrinting().create(); 
@@ -97,8 +100,7 @@ public class MainController implements WebMvcConfigurer{
 		
 	 	@RequestMapping(value = {"/aeronaves/{id}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 		@ResponseBody
-		public String removeAeronave (@PathVariable(value="id") String id) {
-		
+		public String removeAeronave (@PathVariable(value="id") String id) {		
 			Toastr toastrJson = new Toastr();
 			Aeronaves aeronave = aeronaveDao.aeronavePorId(id);
 			if(aeronave != null) {
@@ -123,11 +125,11 @@ public class MainController implements WebMvcConfigurer{
 	
 			}
 			Gson gson = new Gson();
-		return gson.toJson(toastrJson);
-	}
+			return gson.toJson(toastrJson);
+		}
 		
 		
-		
+		//TODO update
 	 	@RequestMapping(value = {"/aeronaves/{id}"}, method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 		@ResponseBody
 		public String updateAeronave (@PathVariable(value="id") String id, HttpServletRequest request) {

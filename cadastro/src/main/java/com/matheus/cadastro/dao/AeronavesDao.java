@@ -36,7 +36,7 @@ public class AeronavesDao extends Dao {
 		if(term.matches("[+-]?\\d*(\\.\\d+)?")) {
 			query = session.createQuery("from Aeronaves a where a.id="+term);
 		}else {
-			query = session.createQuery("from Aeronaves a where lower(a.nome) like lower('%"+term+"%')");
+			query = session.createQuery("from Aeronaves a where lower(a.modelo) like lower('%"+term+"%')");
 		}
 		List<Aeronaves> aeronaves = new ArrayList<Aeronaves>();
 		aeronaves = (List<Aeronaves>) readManyObjects(query);
